@@ -231,42 +231,51 @@ def write_armature(context,
 
     scene = bpy.context.scene
     frame_current = scene.frame_current
-    frame_end = scene.frame_end
-    frame_start = scene.frame_start
+
+    arm.animation_data_create()
+    
     file.write("MOTION\n")
-    file.write("Frames: %d\n" % (frame_end - frame_start + 1))
-    file.write("Frame Time: %.6f\n" % (1.0 / (scene.render.fps / scene.render.fps_base)))
+    file.write("Action Count: "+str(len(bpy.data.actions))+"\n")
+    for action in bpy.data.actions:
+      file.write("Name: "+action.name+"\n")
+      frame_end = int(action.frame_range.y)
+      frame_start = int(action.frame_range.x)
+      arm.animation_data.action = action
+     
+      file.write("Frames: %d\n" % (frame_end - frame_start + 1))
+      file.write("Frame Time: %.6f\n" % (1.0 / (scene.render.fps / scene.render.fps_base)))
 
-    for frame in range(frame_start, frame_end + 1):
-        scene.frame_set(frame)
+      for frame in range(frame_start, frame_end + 1):
+          scene.frame_set(frame)
 
-        for dbone in bones_decorated:
-            dbone.update_posedata()
+          for dbone in bones_decorated:
+              dbone.update_posedata()
 
-        for dbone in bones_decorated:
-            trans = Matrix.Translation(dbone.rest_bone.head_local)
-            itrans = Matrix.Translation(-dbone.rest_bone.head_local)
+          for dbone in bones_decorated:
+              trans = Matrix.Translation(dbone.rest_bone.head_local)
+              itrans = Matrix.Translation(-dbone.rest_bone.head_local)
 
-            if  dbone.parent:
-                mat_final = dbone.parent.rest_arm_mat * dbone.parent.pose_imat * dbone.pose_mat * dbone.rest_arm_imat
-                mat_final = itrans * mat_final * trans
-                loc = mat_final.to_translation() + (dbone.rest_bone.head_local - dbone.parent.rest_bone.head_local)
-            else:
-                mat_final = dbone.pose_mat * dbone.rest_arm_imat
-                mat_final = itrans * mat_final * trans
-                loc = mat_final.to_translation() + dbone.rest_bone.head
+              if  dbone.parent:
+                  mat_final = dbone.parent.rest_arm_mat * dbone.parent.pose_imat * dbone.pose_mat * dbone.rest_arm_imat
+                  mat_final = itrans * mat_final * trans
+                  loc = mat_final.to_translation() + (dbone.rest_bone.head_local - dbone.parent.rest_bone.head_local)
+              else:
+                  mat_final = dbone.pose_mat * dbone.rest_arm_imat
+                  mat_final = itrans * mat_final * trans
+                  loc = mat_final.to_translation() + dbone.rest_bone.head
 
-            # keep eulers compatible, no jumping on interpolation.
-            rot = mat_final.to_euler(dbone.rot_order_str_reverse, dbone.prev_euler)
+              # keep eulers compatible, no jumping on interpolation.
+              rot = mat_final.to_euler(dbone.rot_order_str_reverse, dbone.prev_euler)
 
-            if not dbone.skip_position:
-                file.write("%.6f %.6f %.6f " % (loc * global_scale)[:])
+              if not dbone.skip_position:
+                  file.write("%.6f %.6f %.6f " % (loc * global_scale)[:])
 
-            file.write("%.6f %.6f %.6f " % (degrees(rot[dbone.rot_order[0]]), degrees(rot[dbone.rot_order[1]]), degrees(rot[dbone.rot_order[2]])))
+              file.write("%.6f %.6f %.6f " % (degrees(rot[dbone.rot_order[0]]), degrees(rot[dbone.rot_order[1]]), degrees(rot[dbone.rot_order[2]])))
 
-            dbone.prev_euler = rot
+              dbone.prev_euler = rot
 
-        file.write("\n")
+          file.write("\n")
+        
 
     file.close()
 
