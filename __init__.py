@@ -74,7 +74,7 @@ class Exporter(bpy.types.Operator, ExportHelper):
             file.write('f ' + makeStandard(f2)+'\n')
           # or just write the triangles
           else:
-            file.write('f' + makeStandard(verts.vertices)+'\n')
+            file.write('f ' + makeStandard(verts.vertices)+'\n')
         # Create a dictionary of vertex groups
         vgroups = {}
         # For each vertex, find all the groups it belongs to
