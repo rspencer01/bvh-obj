@@ -231,7 +231,8 @@ def write_armature(context,
 
     scene = bpy.context.scene
     frame_current = scene.frame_current
-
+    frame_end = scene.frame_end
+    frame_start = scene.frame_start
     file.write("MOTION\n")
     file.write("Frames: %d\n" % (frame_end - frame_start + 1))
     file.write("Frame Time: %.6f\n" % (1.0 / (scene.render.fps / scene.render.fps_base)))
