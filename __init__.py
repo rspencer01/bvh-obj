@@ -45,6 +45,7 @@ class Exporter(bpy.types.Operator, ExportHelper):
         return export_bvh.save(self, context,filepath=filename, frame_start=frame_start,frame_end=frame_end)
       
     def execute(self, context):
+        print ("Exporting as bvh-obj")
         # Select the object.  BTW this needs to be the mesh, not the armature.  The armature is selected as the parent of the mesh
         bpy.ops.object.mode_set(mode='OBJECT');
         # We open the file, and write a header

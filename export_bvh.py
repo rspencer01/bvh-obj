@@ -47,6 +47,7 @@ def write_armature(context,
     # We assume that the object parent is the armature.  Is this an alright assumption to make?
     obj = context.object.parent
     arm = obj.data
+    file.write("#BVH Section\n")
 
     # Build a dictionary of children.
     # None for parentless
@@ -232,7 +233,7 @@ def write_armature(context,
     scene = bpy.context.scene
     frame_current = scene.frame_current
 
-    arm.animation_data_create()
+    obj.animation_data_create()
     
     file.write("MOTION\n")
     file.write("Action Count: "+str(len(bpy.data.actions))+"\n")
@@ -240,7 +241,7 @@ def write_armature(context,
       file.write("Name: "+action.name+"\n")
       frame_end = int(action.frame_range.y)
       frame_start = int(action.frame_range.x)
-      arm.animation_data.action = action
+      obj.animation_data.action = action
      
       file.write("Frames: %d\n" % (frame_end - frame_start + 1))
       file.write("Frame Time: %.6f\n" % (1.0 / (scene.render.fps / scene.render.fps_base)))
@@ -281,7 +282,6 @@ def write_armature(context,
 
     scene.frame_set(frame_current)
 
-    print("BVH Exported: %s frames:%d\n" % (filepath, frame_end - frame_start + 1))
 
 
 def save(operator, context, filepath="",
