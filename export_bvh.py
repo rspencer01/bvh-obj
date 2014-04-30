@@ -47,7 +47,6 @@ def write_armature(context,
     # We assume that the object parent is the armature.  Is this an alright assumption to make?
     obj = context.object.parent
     arm = obj.data
-    file.write("#BVH Section\n")
 
     # Build a dictionary of children.
     # None for parentless
